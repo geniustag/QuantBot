@@ -350,7 +350,7 @@ func (e *OKEXThree) getTicker(stockType string, sizes ...interface{}) (ticker Ti
         size = conver.IntMust(sizes[0])
     }
     // resp, err := e.get3("/api/spot/v3/instruments/" + stockType + "/book?size=" + size)
-    resp, err := e.get3(fmt.Sprintf("/api/spot/v3/instruments/%v/book?size=%v", stockType, size))
+    resp, err := e.get3(fmt.Sprintf("/api/spot/v3/instruments/%v/book?size=%v", e.stockTypeMap[stockType], size))
     if err != nil {
         err = fmt.Errorf("GetTicker() error, %+v", err)
         return
