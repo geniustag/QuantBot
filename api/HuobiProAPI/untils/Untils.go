@@ -37,9 +37,6 @@ func HttpGetRequest(strUrl string, mapParams map[string]string) string {
 
 	//==========================================================
 
-	//os.Setenv("HTTP_PROXY", "http://127.0.0.1:6667")
-	//os.Setenv("HTTPS_PROXY", "https://127.0.0.1:6667")
-
 	//==========================================================
 	//
 	httpClient := &http.Client{}
