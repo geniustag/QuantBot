@@ -3,7 +3,7 @@ package constant
 // error constants
 const (
 	Banner                     = "QuantBot"
-	Version                    = "0.0.3"
+	Version                    = "0.0.4"
 	ErrAuthorizationError      = "Authorization Error"
 	ErrInsufficientPermissions = "Insufficient Permissions"
 )
@@ -47,5 +47,5 @@ const (
 // some variables
 var (
 	Consts        = []string{"M", "M5", "M15", "M30", "H", "D", "W"}
-	ExchangeTypes = []string{Zb, Okex, Huobi, Binance, GateIo, Poloniex, OkexFuture, BigOne}
+	ExchangeTypes = []string{Zb, Okex, Huobi, Binance, GateIo, Poloniex, OkexFuture, BigOne, OkexThree}
 )
