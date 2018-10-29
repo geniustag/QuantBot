@@ -4,9 +4,9 @@ import (
 	"fmt"
 
 	"github.com/hprose/hprose-golang/rpc"
-	"github.com/phonegapX/QuantBot/constant"
-	"github.com/phonegapX/QuantBot/model"
-	"github.com/phonegapX/QuantBot/trader"
+	"github.com/geniustag/QuantBot/constant"
+	"github.com/geniustag/QuantBot/model"
+	"github.com/geniustag/QuantBot/trader"
 )
 
 type runner struct{}

@@ -31,6 +31,7 @@ type Position struct {
 // Order struct
 type Order struct {
 	ID         string  //订单ID
+	Currency   string  //交易对
 	Price      float64 //价格
 	Amount     float64 //总量
 	DealAmount float64 //成交量

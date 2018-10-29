@@ -6,9 +6,9 @@ import (
 	"time"
 
 	"github.com/miaolz123/conver"
-	"github.com/phonegapX/QuantBot/api/BinanceAPI"
-	"github.com/phonegapX/QuantBot/constant"
-	"github.com/phonegapX/QuantBot/model"
+	"github.com/geniustag/QuantBot/api/BinanceAPI"
+	"github.com/geniustag/QuantBot/constant"
+	"github.com/geniustag/QuantBot/model"
 )
 
 // Binance the exchange struct of binance.com

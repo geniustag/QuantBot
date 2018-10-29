@@ -6,9 +6,9 @@ import (
 	"time"
 
 	"github.com/miaolz123/conver"
-	"github.com/phonegapX/QuantBot/api/ZbAPI"
-	"github.com/phonegapX/QuantBot/constant"
-	"github.com/phonegapX/QuantBot/model"
+	"github.com/geniustag/QuantBot/api/ZbAPI"
+	"github.com/geniustag/QuantBot/constant"
+	"github.com/geniustag/QuantBot/model"
 )
 
 // Zb the exchange struct of zb.com

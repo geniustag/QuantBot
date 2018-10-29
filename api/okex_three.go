@@ -2,7 +2,7 @@ package api
 
 import (
     "fmt"
-    "sort"
+    "strconv"
     "strings"
     "time"
     "crypto/sha256"
@@ -10,18 +10,16 @@ import (
 
     "github.com/bitly/go-simplejson"
     "github.com/miaolz123/conver"
-    "github.com/phonegapX/QuantBot/constant"
-    "github.com/phonegapX/QuantBot/model"
+    "github.com/geniustag/QuantBot/constant"
+    "github.com/geniustag/QuantBot/model"
     "crypto/hmac"
     "encoding/base64"
     "encoding/hex"
     "io/ioutil"
     "net/http"
-
-    "github.com/bitly/go-simplejson"
 )
 
-var client = http.DefaultClient
+// var client = http.DefaultClient
 var host = "https://www.okex.com"
 
 // OKEX the exchange struct of okex.com
@@ -29,6 +27,7 @@ type OKEXThree struct {
     stockTypeMap     map[string]string
     tradeTypeMap     map[string]string
     recordsPeriodMap map[string]string
+    recordsPeriodMapV3 map[string]string
     minAmountMap     map[string]float64
     records          map[string][]Record
     host             string
@@ -42,7 +41,7 @@ type OKEXThree struct {
 
 // NewOKEX create an exchange struct of okex.com
 func NewOKEXThree(opt Option) Exchange {
-    return &OKEX{
+    return &OKEXThree{
         stockTypeMap: map[string]string{
             "BTC/USDT":  "btc_usdt",
             "ETH/USDT":  "eth_usdt",
@@ -141,7 +140,7 @@ func (e *OKEXThree) GetAccount() interface{} {
     json, err := e.getAuthJSON("/api/spot/v3/accounts")
     if err != nil {
         fmt.Println("GET Accounts Error: ", err)
-        return
+        return false
     }
 
     currencyFrozens := make(map[string]float64)
@@ -151,8 +150,8 @@ func (e *OKEXThree) GetAccount() interface{} {
         for i := len(json.MustArray()); i > 0; i-- {
             recordJSON := json.GetIndex(i - 1)
             currency := recordJSON.Get("currency").MustString()
-            currencyFrozens[currency] = conver.Float64Must(recordJSON.Get("available").MustFloat64()).Interface()
-            currencyFrozens["Frozen" + currency] = conver.Float64Must(recordJSON.Get("hold").MustFloat64()).Interface()
+            currencyFrozens[currency] = conver.Float64Must(recordJSON.Get("available"))
+            currencyFrozens["Frozen" + currency] = conver.Float64Must(recordJSON.Get("hold"))
             fmt.Println("GET Account: " + currency)
         }
     } else {
@@ -163,25 +162,25 @@ func (e *OKEXThree) GetAccount() interface{} {
 }
 
 // Trade place an order
-// func (e *OKEXThree) Trade(tradeType string, stockType string, _price, _amount interface{}, msgs ...interface{}) interface{} {
-//     stockType = strings.ToUpper(stockType)
-//     tradeType = strings.ToUpper(tradeType)
-//     price := conver.Float64Must(_price)
-//     amount := conver.Float64Must(_amount)
-//     if _, ok := e.stockTypeMap[stockType]; !ok {
-//         e.logger.Log(constant.ERROR, "", 0.0, 0.0, "Trade() error, unrecognized stockType: ", stockType)
-//         return false
-//     }
-//     switch tradeType {
-//     case constant.TradeTypeBuy:
-//         return e.buy(stockType, price, amount, msgs...)
-//     case constant.TradeTypeSell:
-//         return e.sell(stockType, price, amount, msgs...)
-//     default:
-//         e.logger.Log(constant.ERROR, "", 0.0, 0.0, "Trade() error, unrecognized tradeType: ", tradeType)
-//         return false
-//     }
-// }
+ func (e *OKEXThree) Trade(tradeType string, stockType string, _price, _amount interface{}, msgs ...interface{}) interface{} {
+     stockType = strings.ToUpper(stockType)
+     tradeType = strings.ToUpper(tradeType)
+     price := conver.Float64Must(_price)
+     amount := conver.Float64Must(_amount)
+     if _, ok := e.stockTypeMap[stockType]; !ok {
+         e.logger.Log(constant.ERROR, "", 0.0, 0.0, "Trade() error, unrecognized stockType: ", stockType)
+         return false
+     }
+     switch tradeType {
+     case constant.TradeTypeBuy:
+         return e.buy(stockType, price, amount, msgs...)
+     case constant.TradeTypeSell:
+         return e.sell(stockType, price, amount, msgs...)
+     default:
+         e.logger.Log(constant.ERROR, "", 0.0, 0.0, "Trade() error, unrecognized tradeType: ", tradeType)
+         return false
+     }
+ }
 
 
 func (e *OKEXThree) postOrder(stockType string, side string, price, amount float64, msgs ...interface{}) interface{} {
@@ -190,7 +189,7 @@ func (e *OKEXThree) postOrder(stockType string, side string, price, amount float
     params["client_oid"] = IsoTime();
     params["instrument_id"] = e.stockTypeMap[stockType]
     params["side"] = side
-    params["size"] = string(amount)
+    params["size"] = strconv.FormatFloat(amount, 'E', -1, 32)
 
     if price > 0 {
         params["type"] = "limit"
@@ -200,7 +199,7 @@ func (e *OKEXThree) postOrder(stockType string, side string, price, amount float
 
     bytesData, err := json.Marshal(params)
 
-    jsonBody = string(bytesData)
+    jsonBody := string(bytesData)
     json, err := e.postAuthJSON("/api/spot/v3/orders", jsonBody)
 
     fmt.Println("Create Order With: " + jsonBody)
@@ -210,7 +209,7 @@ func (e *OKEXThree) postOrder(stockType string, side string, price, amount float
         return false
     }
     if result := json.Get("result").MustBool(); !result {
-        e.logger.Log(constant.ERROR, "", 0.0, 0.0, "Buy() error, the error number is ", json.Get("error_code").MustInt())
+        e.logger.Log(constant.ERROR, "", 0.0, 0.0, "Buy() error, the error number is ", json.Get("code").MustInt())
         return false
     }
     e.logger.Log(constant.BUY, stockType, price, amount, msgs...)
@@ -218,14 +217,16 @@ func (e *OKEXThree) postOrder(stockType string, side string, price, amount float
 }
 
 func (e *OKEXThree) buy(stockType string, price, amount float64, msgs ...interface{}) interface{} {
-   return postOrder(stockType, "buy", price, amount)
+   return e.postOrder(stockType, "buy", price, amount)
 }
 
 func (e *OKEXThree) sell(stockType string, price, amount float64, msgs ...interface{}) interface{} {
-   return postOrder(stockType, "sell", price, amount)
+   return e.postOrder(stockType, "sell", price, amount)
+}
 
-// GetOrder get details of an order
+// func (e *OKEXThree) GetOrder(stockType string, id string) interface{} {
 func (e *OKEXThree) GetOrder(stockType, id string) interface{} {
+
     stockType = strings.ToUpper(stockType)
     if _, ok := e.stockTypeMap[stockType]; !ok {
         e.logger.Log(constant.ERROR, "", 0.0, 0.0, "GetOrder() error, unrecognized stockType: ", stockType)
@@ -237,7 +238,7 @@ func (e *OKEXThree) GetOrder(stockType, id string) interface{} {
         return false
     }
     if result := json.Get("result").MustBool(); !result {
-        e.logger.Log(constant.ERROR, "", 0.0, 0.0, "GetOrder() error, the error number is ", json.Get("error_code").MustInt())
+        e.logger.Log(constant.ERROR, "", 0.0, 0.0, "GetOrder() error, the error number is ", json.Get("code").MustInt())
         return false
     }
     return Order{
@@ -246,6 +247,7 @@ func (e *OKEXThree) GetOrder(stockType, id string) interface{} {
         Amount:     json.Get("size").MustFloat64(),
         DealAmount: json.Get("filled_size").MustFloat64(),
         TradeType:  e.tradeTypeMap[json.Get("side").MustString()],
+        Currency:   json.Get("instrument_id").MustString(),
         StockType:  stockType,
     }
 }
@@ -263,7 +265,7 @@ func (e *OKEXThree) GetOrders(stockType string) interface{} {
         return false
     }
     if result := json.Get("result").MustBool(); !result {
-        e.logger.Log(constant.ERROR, "", 0.0, 0.0, "GetOrders() error, the error number is ", json.Get("error_code").MustInt())
+        e.logger.Log(constant.ERROR, "", 0.0, 0.0, "GetOrders() error, the error number is ", json.Get("code").MustInt())
         return false
     }
     orders := []Order{}
@@ -271,11 +273,12 @@ func (e *OKEXThree) GetOrders(stockType string) interface{} {
     for i := 0; i < count; i++ {
         orderJSON := json.GetIndex(i)
         orders = append(orders, Order{
-            ID:         fmt.Sprint(json.Get("order_id").Interface()),
-            Price:      json.Get("price").MustFloat64(),
-            Amount:     json.Get("size").MustFloat64(),
-            DealAmount: json.Get("filled_size").MustFloat64(),
-            TradeType:  e.tradeTypeMap[json.Get("side").MustString()],
+            ID:         fmt.Sprint(orderJSON.Get("order_id").Interface()),
+            Price:      orderJSON.Get("price").MustFloat64(),
+            Amount:     orderJSON.Get("size").MustFloat64(),
+            DealAmount: orderJSON.Get("filled_size").MustFloat64(),
+            TradeType:  e.tradeTypeMap[orderJSON.Get("side").MustString()],
+            Currency:   orderJSON.Get("instrument_id").MustString(),
             StockType:  stockType,
         })
     }
@@ -295,7 +298,7 @@ func (e *OKEXThree) GetTrades(stockType string) interface{} {
         return false
     }
     if result := json.Get("result").MustBool(); !result {
-        e.logger.Log(constant.ERROR, "", 0.0, 0.0, "GetOrders() error, the error number is ", json.Get("error_code").MustInt())
+        e.logger.Log(constant.ERROR, "", 0.0, 0.0, "GetOrders() error, the error number is ", json.Get("code").MustInt())
         return false
     }
     orders := []Order{}
@@ -303,11 +306,12 @@ func (e *OKEXThree) GetTrades(stockType string) interface{} {
     for i := 0; i < count; i++ {
         orderJSON := json.GetIndex(i)
         orders = append(orders, Order{
-            ID:         fmt.Sprint(json.Get("order_id").Interface()),
-            Price:      json.Get("price").MustFloat64(),
-            Amount:     json.Get("size").MustFloat64(),
-            DealAmount: json.Get("filled_size").MustFloat64(),
-            TradeType:  e.tradeTypeMap[json.Get("side").MustString()],
+            ID:         fmt.Sprint(orderJSON.Get("order_id").Interface()),
+            Price:      orderJSON.Get("price").MustFloat64(),
+            Amount:     orderJSON.Get("size").MustFloat64(),
+            DealAmount: orderJSON.Get("filled_size").MustFloat64(),
+            TradeType:  e.tradeTypeMap[orderJSON.Get("side").MustString()],
+            Currency:   orderJSON.Get("instrument_id").MustString(),
             StockType:  stockType,
         })
     }
@@ -317,17 +321,17 @@ func (e *OKEXThree) GetTrades(stockType string) interface{} {
 // CancelOrder cancel an order
 func (e *OKEXThree) CancelOrder(order Order) bool {
     params := make(map[string]interface{})
-    params["instrument_id"] = e.stockTypeMap[stockType]
+    params["instrument_id"] = order.Currency
     bytesData, err := json.Marshal(params)
 
-    jsonBody = string(bytesData)
+    jsonBody := string(bytesData)
     json, err := e.postAuthJSON("/api/spot/v3/cancel_orders/" + order.ID, jsonBody)
     if err != nil {
         e.logger.Log(constant.ERROR, "", 0.0, 0.0, "CancelOrder() error, ", err)
         return false
     }
     if result := json.Get("result").MustBool(); !result {
-        e.logger.Log(constant.ERROR, "", 0.0, 0.0, "CancelOrder() error, the error number is ", json.Get("error_code").MustInt())
+        e.logger.Log(constant.ERROR, "", 0.0, 0.0, "CancelOrder() error, the error number is ", json.Get("code").MustInt())
         return false
     }
     e.logger.Log(constant.CANCEL, order.StockType, order.Price, order.Amount-order.DealAmount, order)
@@ -345,7 +349,8 @@ func (e *OKEXThree) getTicker(stockType string, sizes ...interface{}) (ticker Ti
     if len(sizes) > 0 && conver.IntMust(sizes[0]) > 0 {
         size = conver.IntMust(sizes[0])
     }
-    resp, err := get3("/api/spot/v3/instruments/" + stockType + "/book")
+    // resp, err := e.get3("/api/spot/v3/instruments/" + stockType + "/book?size=" + size)
+    resp, err := e.get3(fmt.Sprintf("/api/spot/v3/instruments/%v/book?size=%v", stockType, size))
     if err != nil {
         err = fmt.Errorf("GetTicker() error, %+v", err)
         return
@@ -407,7 +412,7 @@ func (e *OKEXThree) GetRecords(stockType, period string, sizes ...interface{}) i
     if len(sizes) > 0 && conver.IntMust(sizes[0]) > 0 {
         size = conver.IntMust(sizes[0])
     }
-    resp, err := get3("/api/spot/v3/instruments/"+e.stockTypeMap[stockType]+"/candles?granularity=" + e.recordsPeriodMapV3[period])
+    resp, err := e.get3("/api/spot/v3/instruments/"+e.stockTypeMap[stockType]+"/candles?granularity=" + e.recordsPeriodMapV3[period])
     if err != nil {
         e.logger.Log(constant.ERROR, "", 0.0, 0.0, "GetRecords() error, ", err)
         return false
@@ -426,7 +431,7 @@ func (e *OKEXThree) GetRecords(stockType, period string, sizes ...interface{}) i
     for i := len(json.MustArray()); i > 0; i-- {
         recordJSON := json.GetIndex(i - 1)
         recordTimeOrigin, _ := time.Parse(base_format, recordJSON.Get("time").MustString())
-        recordTime = recordTimeOrigin.UnixNano()/1e6
+        recordTime := recordTimeOrigin.UnixNano()/1e6
         if recordTime > timeLast {
             recordsNew = append([]Record{{
                 Time:   recordTime,
@@ -457,7 +462,7 @@ func (e *OKEXThree) GetRecords(stockType, period string, sizes ...interface{}) i
 }
 
 func (e *OKEXThree) getAuthJSON(url string) (json *simplejson.Json, err error) {
-    resp, err := get3(url)
+    resp, err := e.get3(url)
     if err != nil {
         return
     }
@@ -465,20 +470,20 @@ func (e *OKEXThree) getAuthJSON(url string) (json *simplejson.Json, err error) {
 }
 
 func (e *OKEXThree) postAuthJSON(url string, jsonBody string) (json *simplejson.Json, err error) {
-    resp, err := post3(url, jsonBody)
+    resp, err := e.post3(url, jsonBody)
     if err != nil {
         return
     }
     return simplejson.NewJson(resp)
 }
 
-func get3(url string) (ret []byte, err error) {
+func (e *OKEXThree) get3(url string) (ret []byte, err error) {
 // func get(url string) (json *simplejson.Json, err error) {
     req, err := http.NewRequest("GET", host + url, strings.NewReader(""))
     if err != nil {
         return
     }
-    setHeaders(req, "GET", url, "")
+    e.setHeaders(req, "GET", url, "")
     resp, err := client.Do(req)
     if resp == nil {
         err = fmt.Errorf("[GET %s] HTTP Error Info: %v", url, err)
@@ -491,12 +496,12 @@ func get3(url string) (ret []byte, err error) {
     return ret, err
 }
 
-func post3(url string, data string) (ret []byte, err error) {
+func (e *OKEXThree) post3(url string, data string) (ret []byte, err error) {
     req, err := http.NewRequest("POST", host + url, strings.NewReader(data))
     if err != nil {
         return
     }
-    setHeaders(req, "POST", url, data)
+    e.setHeaders(req, "POST", url, data)
     resp, err := client.Do(req)
     if resp == nil {
         err = fmt.Errorf("[POST %s] HTTP Error Info: %v", url, err)
@@ -509,14 +514,14 @@ func post3(url string, data string) (ret []byte, err error) {
     return ret, err
 }
 
-func setHeaders(req *http.Request, method string, url string, jsonBody string) {
+func (e *OKEXThree) setHeaders(req *http.Request, method string, url string, jsonBody string) {
 
     timestamp := IsoTime()
     preHash := timestamp + method + url + jsonBody
 
     req.Header.Set("Content-Type", "application/json")
-    req.Header.Set("OK-ACCESS-KEY", e.option.api_key)
-    req.Header.Set("OK-ACCESS-SIGN", ComputeHmac256(preHash, e.option.secret_key))
+    req.Header.Set("OK-ACCESS-KEY", e.option.AccessKey)
+    req.Header.Set("OK-ACCESS-SIGN", ComputeHmac256(preHash, e.option.SecretKey))
     req.Header.Set("OK-ACCESS-TIMESTAMP", timestamp)
     req.Header.Set("OK-ACCESS-PASSPHRASE", "coffee")
 
@@ -546,22 +551,3 @@ func ComputeHmac256(message string, secret string) string {
     return base64.StdEncoding.EncodeToString(h.Sum(nil))
 }
 
-func HmacSha256Base64Signer(preHash string, secret string) string {
-    s := signSha256(preHash, secret)
-    // s := signSha256("2018-10-29T03:08:05.905ZGET/api/spot/v3/accounts", secret)
-    fmt.Println("preHash: " + preHash)
-    fmt.Println("signSha256: " + s)
-
-    sig := base64Encode(s);
-    fmt.Println("Signature: " + sig)
-
-    return sig;
-}
-
-func base64Encode(data string) string {
-    return base64.StdEncoding.EncodeToString([]byte(data))
-}
-
-func main() {  
-    getAccounts()
-}
