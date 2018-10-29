@@ -190,6 +190,7 @@ func (e *OKEXThree) postOrder(stockType string, side string, price, amount float
     params["instrument_id"] = e.stockTypeMap[stockType]
     params["side"] = side
     params["size"] = strconv.FormatFloat(amount, 'E', -1, 32)
+    params["price"] = strconv.FormatFloat(price, 'E', -1, 32)
 
     if price > 0 {
         params["type"] = "limit"
