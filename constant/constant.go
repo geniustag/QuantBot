@@ -12,6 +12,7 @@ const (
 const (
 	Zb         = "zb"
 	Okex       = "okex"
+	OkexThree  = "okexv3"
 	Huobi      = "huobi"
 	Binance    = "binance"
 	GateIo     = "gateio"

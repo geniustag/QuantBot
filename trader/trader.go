@@ -17,6 +17,7 @@ var (
 	exchangeMaker = map[string]func(api.Option) api.Exchange{ //保存所有交易所的构造函数
 		constant.Zb:         api.NewZb,
 		constant.Okex:       api.NewOKEX,
+		constant.OkexThree:  api.NewOKEXThree,
 		constant.Huobi:      api.NewHuobi,
 		constant.Binance:    api.NewBinance,
 		constant.GateIo:     api.NewGateIo,
