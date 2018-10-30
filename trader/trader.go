@@ -18,6 +18,7 @@ var (
 		constant.Zb:         api.NewZb,
 		constant.Okex:       api.NewOKEX,
 		constant.OkexThree:  api.NewOKEXThree,
+		constant.Xnodes:     api.NewXnodes,
 		constant.Huobi:      api.NewHuobi,
 		constant.Binance:    api.NewBinance,
 		constant.GateIo:     api.NewGateIo,
