@@ -260,7 +260,7 @@ func (e *OKEXThree) GetOrders(stockType string) interface{} {
         e.logger.Log(constant.ERROR, "", 0.0, 0.0, "GetOrders() error, unrecognized stockType: ", stockType)
         return false
     }
-    json, err := e.getAuthJSON("/api/spot/v3/orders?instrument_id="+e.stockTypeMap[stockType]+"&status=all")
+    json, err := e.getAuthJSON("/api/spot/v3/orders_pending?instrument_id="+e.stockTypeMap[stockType])
     if err != nil {
         e.logger.Log(constant.ERROR, "", 0.0, 0.0, "GetOrders() error, ", err)
         return false
