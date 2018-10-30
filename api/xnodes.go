@@ -252,10 +252,10 @@ func (e *Xnodes) GetOrders(stockType string) interface{} {
         e.logger.Log(constant.ERROR, "", 0.0, 0.0, "GetOrders() error, ", err)
         return false
     }
-    if result := json.Get("result").MustBool(); !result {
-        e.logger.Log(constant.ERROR, "", 0.0, 0.0, "GetOrders() error, the error number is ", json.Get("code").MustInt())
-        return false
-    }
+     //if result := json.Get("result").MustBool(); !result {
+     //   e.logger.Log(constant.ERROR, "", 0.0, 0.0, "GetOrders() error, the error number is ", json.Get("code").MustInt())
+     //   return false
+    // }
     orders := []Order{}
     count := len(json.MustArray())
     for i := 0; i < count; i++ {
