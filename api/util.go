@@ -4,10 +4,12 @@ import (
 	"crypto/hmac"
 	"crypto/md5"
 	"crypto/sha1"
+    "crypto/sha256"
 	"crypto/sha512"
 	"encoding/base64"
 	"encoding/hex"
 	"fmt"
+	"time"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -150,4 +152,28 @@ func get(url string) (ret []byte, err error) {
 		err = fmt.Errorf("[GET %s] HTTP Status: %d, Info: %v", url, resp.StatusCode, err)
 	}
 	return ret, err
+}
+
+func IsoTime() string {
+    now := time.Now().UTC()
+    s := now.Format(time.RFC3339Nano)
+    // "2006-01-02T15:04:05.999999999Z07:00"
+    start := strings.Split(s, "Z")[0]
+    timestamp := start[:23] + "Z"
+
+    fmt.Println("OKEX timestamp: " + timestamp)
+    return timestamp
+}
+
+func signSha256(signString string, key string) string {
+    h := hmac.New(sha256.New, []byte(key))
+    h.Write([]byte(signString))
+    return hex.EncodeToString(h.Sum(nil))
+}
+
+func ComputeHmac256(message string, secret string) string {
+    key := []byte(secret)
+    h := hmac.New(sha256.New, key)
+    h.Write([]byte(message))
+    return base64.StdEncoding.EncodeToString(h.Sum(nil))
 }

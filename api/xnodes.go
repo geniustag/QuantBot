@@ -16,7 +16,7 @@ import (
 )
 
 // OKEX the exchange struct of okex.com
-type OKEXThree struct {
+type Xnodes struct {
     stockTypeMap     map[string]string
     tradeTypeMap     map[string]string
     recordsPeriodMap map[string]string
@@ -33,14 +33,14 @@ type OKEXThree struct {
 }
 
 // NewOKEX create an exchange struct of okex.com
-func NewOKEXThree(opt Option) Exchange {
-    return &OKEXThree{
+func NewXnodes(opt Option) Exchange {
+    return &Xnodes{
         stockTypeMap: map[string]string{
             "BTC/USDT":  "btc_usdt",
             "ETH/USDT":  "eth_usdt",
             "EOS/USDT":  "eos_usdt",
             "GST/ETH":   "gst_eth",
-            "GST/BTC":   "gst_btc",
+            "GST/BTC":  "gst_btc",
             "GST/USDT":  "gst_usdt",
         },
         tradeTypeMap: map[string]string{
@@ -78,7 +78,7 @@ func NewOKEXThree(opt Option) Exchange {
         records: make(map[string][]Record),
         logger:  model.Logger{TraderID: opt.TraderID, ExchangeType: opt.Type},
         option:  opt,
-        host: "https://www.okex.com/api/spot/v3",
+        host: "https://www.xnodes.pro/api/spot/v3",
         limit:     10.0,
         lastSleep: time.Now().UnixNano(),
     }
@@ -86,28 +86,28 @@ func NewOKEXThree(opt Option) Exchange {
 
 
 // Log print something to console
-func (e *OKEXThree) Log(msgs ...interface{}) {
+func (e *Xnodes) Log(msgs ...interface{}) {
     e.logger.Log(constant.INFO, "", 0.0, 0.0, msgs...)
 }
 
 // GetType get the type of this exchange
-func (e *OKEXThree) GetType() string {
+func (e *Xnodes) GetType() string {
     return e.option.Type
 }
 
 // GetName get the name of this exchange
-func (e *OKEXThree) GetName() string {
+func (e *Xnodes) GetName() string {
     return e.option.Name
 }
 
 // SetLimit set the limit calls amount per second of this exchange
-func (e *OKEXThree) SetLimit(times interface{}) float64 {
+func (e *Xnodes) SetLimit(times interface{}) float64 {
     e.limit = conver.Float64Must(times)
     return e.limit
 }
 
 // AutoSleep auto sleep to achieve the limit calls amount per second of this exchange
-func (e *OKEXThree) AutoSleep() {
+func (e *Xnodes) AutoSleep() {
     now := time.Now().UnixNano()
     interval := 1e+9/e.limit*conver.Float64Must(e.lastTimes) - conver.Float64Must(now-e.lastSleep)
     if interval > 0.0 {
@@ -118,12 +118,12 @@ func (e *OKEXThree) AutoSleep() {
 }
 
 // GetMinAmount get the min trade amonut of this exchange
-func (e *OKEXThree) GetMinAmount(stock string) float64 {
+func (e *Xnodes) GetMinAmount(stock string) float64 {
     return e.minAmountMap[stock]
 }
 
 // GetAccount get the account detail of this exchange
-func (e *OKEXThree) GetAccount() interface{} {
+func (e *Xnodes) GetAccount() interface{} {
     json, err := e.getAuthJSON("/accounts")
     if err != nil {
         fmt.Println("GET Accounts Error: ", err)
@@ -149,7 +149,7 @@ func (e *OKEXThree) GetAccount() interface{} {
 }
 
 // Trade place an order
- func (e *OKEXThree) Trade(tradeType string, stockType string, _price, _amount interface{}, msgs ...interface{}) interface{} {
+ func (e *Xnodes) Trade(tradeType string, stockType string, _price, _amount interface{}, msgs ...interface{}) interface{} {
      stockType = strings.ToUpper(stockType)
      tradeType = strings.ToUpper(tradeType)
      price := conver.Float64Must(_price)
@@ -170,7 +170,7 @@ func (e *OKEXThree) GetAccount() interface{} {
  }
 
 
-func (e *OKEXThree) postOrder(stockType string, side string, price, amount float64, msgs ...interface{}) interface{} {
+func (e *Xnodes) postOrder(stockType string, side string, price, amount float64, msgs ...interface{}) interface{} {
     // {"client_oid":"20180728","instrument_id":"btc-usdt","side":"buy","type":"limit","size":"0.1"," notional ":"100","margin_trading ":"1"}
     params := make(map[string]interface{})
     params["client_oid"] = IsoTime();
@@ -204,16 +204,16 @@ func (e *OKEXThree) postOrder(stockType string, side string, price, amount float
     return fmt.Sprint(json.Get("order_id").Interface())
 }
 
-func (e *OKEXThree) buy(stockType string, price, amount float64, msgs ...interface{}) interface{} {
+func (e *Xnodes) buy(stockType string, price, amount float64, msgs ...interface{}) interface{} {
    return e.postOrder(stockType, "buy", price, amount)
 }
 
-func (e *OKEXThree) sell(stockType string, price, amount float64, msgs ...interface{}) interface{} {
+func (e *Xnodes) sell(stockType string, price, amount float64, msgs ...interface{}) interface{} {
    return e.postOrder(stockType, "sell", price, amount)
 }
 
-// func (e *OKEXThree) GetOrder(stockType string, id string) interface{} {
-func (e *OKEXThree) GetOrder(stockType, id string) interface{} {
+// func (e *Xnodes) GetOrder(stockType string, id string) interface{} {
+func (e *Xnodes) GetOrder(stockType, id string) interface{} {
 
     stockType = strings.ToUpper(stockType)
     if _, ok := e.stockTypeMap[stockType]; !ok {
@@ -241,7 +241,7 @@ func (e *OKEXThree) GetOrder(stockType, id string) interface{} {
 }
 
 // GetOrders get all unfilled orders
-func (e *OKEXThree) GetOrders(stockType string) interface{} {
+func (e *Xnodes) GetOrders(stockType string) interface{} {
     stockType = strings.ToUpper(stockType)
     if _, ok := e.stockTypeMap[stockType]; !ok {
         e.logger.Log(constant.ERROR, "", 0.0, 0.0, "GetOrders() error, unrecognized stockType: ", stockType)
@@ -274,7 +274,7 @@ func (e *OKEXThree) GetOrders(stockType string) interface{} {
 }
 
 // GetTrades get all filled orders recently
-func (e *OKEXThree) GetTrades(stockType string) interface{} {
+func (e *Xnodes) GetTrades(stockType string) interface{} {
    stockType = strings.ToUpper(stockType)
     if _, ok := e.stockTypeMap[stockType]; !ok {
         e.logger.Log(constant.ERROR, "", 0.0, 0.0, "GetOrders() error, unrecognized stockType: ", stockType)
@@ -307,7 +307,7 @@ func (e *OKEXThree) GetTrades(stockType string) interface{} {
 }
 
 // CancelOrder cancel an order
-func (e *OKEXThree) CancelOrder(order Order) bool {
+func (e *Xnodes) CancelOrder(order Order) bool {
     params := make(map[string]interface{})
     params["instrument_id"] = order.Currency
     bytesData, err := json.Marshal(params)
@@ -327,7 +327,7 @@ func (e *OKEXThree) CancelOrder(order Order) bool {
 }
 
 // getTicker get market ticker & depth
-func (e *OKEXThree) getTicker(stockType string, sizes ...interface{}) (ticker Ticker, err error) {
+func (e *Xnodes) getTicker(stockType string, sizes ...interface{}) (ticker Ticker, err error) {
     stockType = strings.ToUpper(stockType)
     if _, ok := e.stockTypeMap[stockType]; !ok {
         err = fmt.Errorf("GetTicker() error, unrecognized stockType: %+v", stockType)
@@ -376,7 +376,7 @@ func (e *OKEXThree) getTicker(stockType string, sizes ...interface{}) (ticker Ti
 }
 
 // GetTicker get market ticker & depth
-func (e *OKEXThree) GetTicker(stockType string, sizes ...interface{}) interface{} {
+func (e *Xnodes) GetTicker(stockType string, sizes ...interface{}) interface{} {
     ticker, err := e.getTicker(stockType, sizes...)
     if err != nil {
         e.logger.Log(constant.ERROR, "", 0.0, 0.0, err)
@@ -386,7 +386,7 @@ func (e *OKEXThree) GetTicker(stockType string, sizes ...interface{}) interface{
 }
 
 // GetRecords get candlestick data
-func (e *OKEXThree) GetRecords(stockType, period string, sizes ...interface{}) interface{} {
+func (e *Xnodes) GetRecords(stockType, period string, sizes ...interface{}) interface{} {
     stockType = strings.ToUpper(stockType)
     if _, ok := e.stockTypeMap[stockType]; !ok {
         e.logger.Log(constant.ERROR, "", 0.0, 0.0, "GetRecords() error, unrecognized stockType: ", stockType)
@@ -449,7 +449,7 @@ func (e *OKEXThree) GetRecords(stockType, period string, sizes ...interface{}) i
     return e.records[period]
 }
 
-func (e *OKEXThree) getAuthJSON(url string) (json *simplejson.Json, err error) {
+func (e *Xnodes) getAuthJSON(url string) (json *simplejson.Json, err error) {
     resp, err := e.get3(url)
     if err != nil {
         return
@@ -457,7 +457,7 @@ func (e *OKEXThree) getAuthJSON(url string) (json *simplejson.Json, err error) {
     return simplejson.NewJson(resp)
 }
 
-func (e *OKEXThree) postAuthJSON(url string, jsonBody string) (json *simplejson.Json, err error) {
+func (e *Xnodes) postAuthJSON(url string, jsonBody string) (json *simplejson.Json, err error) {
     resp, err := e.post3(url, jsonBody)
     if err != nil {
         return
@@ -465,7 +465,7 @@ func (e *OKEXThree) postAuthJSON(url string, jsonBody string) (json *simplejson.
     return simplejson.NewJson(resp)
 }
 
-func (e *OKEXThree) get3(url string) (ret []byte, err error) {
+func (e *Xnodes) get3(url string) (ret []byte, err error) {
 // func get(url string) (json *simplejson.Json, err error) {
     req, err := http.NewRequest("GET", e.host + url, strings.NewReader(""))
     if err != nil {
@@ -484,7 +484,7 @@ func (e *OKEXThree) get3(url string) (ret []byte, err error) {
     return ret, err
 }
 
-func (e *OKEXThree) post3(url string, data string) (ret []byte, err error) {
+func (e *Xnodes) post3(url string, data string) (ret []byte, err error) {
     req, err := http.NewRequest("POST", e.host + url, strings.NewReader(data))
     if err != nil {
         return
@@ -502,7 +502,7 @@ func (e *OKEXThree) post3(url string, data string) (ret []byte, err error) {
     return ret, err
 }
 
-func (e *OKEXThree) setHeaders(req *http.Request, method string, url string, jsonBody string) {
+func (e *Xnodes) setHeaders(req *http.Request, method string, url string, jsonBody string) {
 
     timestamp := IsoTime()
     preHash := timestamp + method + "/api/spot/v3" + url + jsonBody
