@@ -137,8 +137,8 @@ func (e *OKEXThree) GetAccount() interface{} {
         for i := len(json.MustArray()); i > 0; i-- {
             recordJSON := json.GetIndex(i - 1)
             currency := recordJSON.Get("currency").MustString()
-            currencyFrozens[currency] = conver.Float64Must(recordJSON.Get("available"))
-            currencyFrozens["Frozen" + currency] = conver.Float64Must(recordJSON.Get("hold"))
+            currencyFrozens[currency] = conver.Float64Must(recordJSON.Get("available").MustString())
+            currencyFrozens["Frozen" + currency] = conver.Float64Must(recordJSON.Get("hold").MustString())
             fmt.Println("GET Account: " + currency)
         }
     } else {
