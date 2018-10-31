@@ -358,8 +358,8 @@ func (e *OKEXThree) getTicker(stockType string, sizes ...interface{}) (ticker Ti
         })
     }
     depthsJSON = json.Get("asks")
-    for i := len(depthsJSON.MustArray()); i > 0; i-- {
-        depthJSON := depthsJSON.GetIndex(i - 1)
+    for i := 0; i < len(depthsJSON.MustArray()); i++ {
+        depthJSON := depthsJSON.GetIndex(i)
         ticker.Asks = append(ticker.Asks, OrderBook{
             Price: conver.Float64Must(depthJSON.GetIndex(0).MustString()),
             Amount: conver.Float64Must(depthJSON.GetIndex(1).MustString()),
