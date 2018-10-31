@@ -353,16 +353,16 @@ func (e *Xnodes) getTicker(stockType string, sizes ...interface{}) (ticker Ticke
     for i := 0; i < len(depthsJSON.MustArray()); i++ {
         depthJSON := depthsJSON.GetIndex(i)
         ticker.Bids = append(ticker.Bids, OrderBook{
-            Price:  depthJSON.GetIndex(0).MustFloat64(),
-            Amount: depthJSON.GetIndex(1).MustFloat64(),
+            Price: conver.Float64Must(depthJSON.GetIndex(0).MustString()),
+            Amount: conver.Float64Must(depthJSON.GetIndex(1).MustString()),
         })
     }
     depthsJSON = json.Get("asks")
     for i := len(depthsJSON.MustArray()); i > 0; i-- {
         depthJSON := depthsJSON.GetIndex(i - 1)
         ticker.Asks = append(ticker.Asks, OrderBook{
-            Price:  depthJSON.GetIndex(0).MustFloat64(),
-            Amount: depthJSON.GetIndex(1).MustFloat64(),
+            Price: conver.Float64Must(depthJSON.GetIndex(0).MustString()),
+            Amount: conver.Float64Must(depthJSON.GetIndex(1).MustString()),
         })
     }
     if len(ticker.Bids) < 1 || len(ticker.Asks) < 1 {
@@ -423,20 +423,20 @@ func (e *Xnodes) GetRecords(stockType, period string, sizes ...interface{}) inte
         if recordTime > timeLast {
             recordsNew = append([]Record{{
                 Time:   recordTime,
-                Open:   recordJSON.Get("open").MustFloat64(),
-                High:   recordJSON.Get("high").MustFloat64(),
-                Low:    recordJSON.Get("low").MustFloat64(),
-                Close:  recordJSON.Get("close").MustFloat64(),
-                Volume: recordJSON.Get("volume").MustFloat64(),
+                Open:   conver.Float64Must(recordJSON.Get("open").MustString()),
+                High:   conver.Float64Must(recordJSON.Get("high").MustString()),
+                Low:    conver.Float64Must(recordJSON.Get("low").MustString()),
+                Close:  conver.Float64Must(recordJSON.Get("close").MustString()),
+                Volume: conver.Float64Must(recordJSON.Get("volume").MustString()),
             }}, recordsNew...)
         } else if timeLast > 0 && recordTime == timeLast {
             e.records[period][len(e.records[period])-1] = Record{
                 Time:   recordTime,
-                Open:   recordJSON.Get("open").MustFloat64(),
-                High:   recordJSON.Get("high").MustFloat64(),
-                Low:    recordJSON.Get("low").MustFloat64(),
-                Close:  recordJSON.Get("close").MustFloat64(),
-                Volume: recordJSON.Get("volume").MustFloat64(),
+                Open:   conver.Float64Must(recordJSON.Get("open").MustString()),
+                High:   conver.Float64Must(recordJSON.Get("high").MustString()),
+                Low:    conver.Float64Must(recordJSON.Get("low").MustString()),
+                Close:  conver.Float64Must(recordJSON.Get("close").MustString()),
+                Volume: conver.Float64Must(recordJSON.Get("volume").MustString()),
             }
         } else {
             break
