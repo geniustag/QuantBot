@@ -231,9 +231,9 @@ func (e *OKEXThree) GetOrder(stockType, id string) interface{} {
     // }
     return Order{
         ID:         fmt.Sprint(json.Get("order_id").Interface()),
-        Price:      json.Get("price").MustFloat64(),
-        Amount:     json.Get("size").MustFloat64(),
-        DealAmount: json.Get("filled_size").MustFloat64(),
+        Price:      conver.Float64Must(json.Get("price").MustString()),
+        Amount:     conver.Float64Must(json.Get("size").MustString()),
+        DealAmount: conver.Float64Must(json.Get("filled_size").MustString()),
         TradeType:  e.tradeTypeMap[json.Get("side").MustString()],
         Currency:   json.Get("instrument_id").MustString(),
         StockType:  stockType,
@@ -252,19 +252,19 @@ func (e *OKEXThree) GetOrders(stockType string) interface{} {
         e.logger.Log(constant.ERROR, "", 0.0, 0.0, "GetOrders() error, ", err)
         return false
     }
-    if result := json.Get("result").MustBool(); !result {
-        e.logger.Log(constant.ERROR, "", 0.0, 0.0, "GetOrders() error, the error number is ", json.Get("code").MustInt())
-        return false
-    }
+    // if result := json.Get("result").MustBool(); !result {
+    //     e.logger.Log(constant.ERROR, "", 0.0, 0.0, "GetOrders() error, the error number is ", json.Get("code").MustInt())
+    //     return false
+    // }
     orders := []Order{}
     count := len(json.MustArray())
     for i := 0; i < count; i++ {
         orderJSON := json.GetIndex(i)
         orders = append(orders, Order{
             ID:         fmt.Sprint(orderJSON.Get("order_id").Interface()),
-            Price:      orderJSON.Get("price").MustFloat64(),
-            Amount:     orderJSON.Get("size").MustFloat64(),
-            DealAmount: orderJSON.Get("filled_size").MustFloat64(),
+            Price:      conver.Float64Must(orderJSON.Get("price").MustString()),
+            Amount:     conver.Float64Must(orderJSON.Get("size").MustString()),
+            DealAmount: conver.Float64Must(orderJSON.Get("filled_size").MustString()),
             TradeType:  e.tradeTypeMap[orderJSON.Get("side").MustString()],
             Currency:   orderJSON.Get("instrument_id").MustString(),
             StockType:  stockType,
@@ -285,19 +285,19 @@ func (e *OKEXThree) GetTrades(stockType string) interface{} {
         e.logger.Log(constant.ERROR, "", 0.0, 0.0, "GetOrders() error, ", err)
         return false
     }
-    if result := json.Get("result").MustBool(); !result {
-        e.logger.Log(constant.ERROR, "", 0.0, 0.0, "GetOrders() error, the error number is ", json.Get("code").MustInt())
-        return false
-    }
+    // if result := json.Get("result").MustBool(); !result {
+    //     e.logger.Log(constant.ERROR, "", 0.0, 0.0, "GetOrders() error, the error number is ", json.Get("code").MustInt())
+    //     return false
+    // }
     orders := []Order{}
     count := len(json.MustArray())
     for i := 0; i < count; i++ {
         orderJSON := json.GetIndex(i)
         orders = append(orders, Order{
             ID:         fmt.Sprint(orderJSON.Get("order_id").Interface()),
-            Price:      orderJSON.Get("price").MustFloat64(),
-            Amount:     orderJSON.Get("size").MustFloat64(),
-            DealAmount: orderJSON.Get("filled_size").MustFloat64(),
+            Price:      conver.Float64Must(orderJSON.Get("price").MustString()),
+            Amount:     conver.Float64Must(orderJSON.Get("size").MustString()),
+            DealAmount: conver.Float64Must(orderJSON.Get("filled_size").MustString()),
             TradeType:  e.tradeTypeMap[orderJSON.Get("side").MustString()],
             Currency:   orderJSON.Get("instrument_id").MustString(),
             StockType:  stockType,
