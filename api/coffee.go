@@ -40,7 +40,7 @@ func NewCoffee(opt Option) Exchange {
             "ETH/USDT":  "eth_usdt",
             "EOS/USDT":  "eos_usdt",
             "GST/ETH":   "gst_eth",
-            "GST/BTC":  "gst_btc",
+            "GST/BTC":   "gst_btc",
             "GST/USDT":  "gst_usdt",
         },
         tradeTypeMap: map[string]string{
@@ -225,10 +225,10 @@ func (e *Coffee) GetOrder(stockType, id string) interface{} {
         e.logger.Log(constant.ERROR, "", 0.0, 0.0, "GetOrder() error, ", err)
         return false
     }
-    if result := json.Get("result").MustBool(); !result {
-        e.logger.Log(constant.ERROR, "", 0.0, 0.0, "GetOrder() error, the error number is ", json.Get("code").MustInt())
-        return false
-    }
+    // if result := json.Get("result").MustBool(); !result {
+    //     e.logger.Log(constant.ERROR, "", 0.0, 0.0, "GetOrder() error, the error number is ", json.Get("code").MustInt())
+    //     return false
+    // }
     return Order{
         ID:         fmt.Sprint(json.Get("order_id").Interface()),
         Price:      conver.Float64Must(json.Get("price").MustString()),
@@ -252,9 +252,9 @@ func (e *Coffee) GetOrders(stockType string) interface{} {
         e.logger.Log(constant.ERROR, "", 0.0, 0.0, "GetOrders() error, ", err)
         return false
     }
-     //if result := json.Get("result").MustBool(); !result {
-     //   e.logger.Log(constant.ERROR, "", 0.0, 0.0, "GetOrders() error, the error number is ", json.Get("code").MustInt())
-     //   return false
+    // if result := json.Get("result").MustBool(); !result {
+    //     e.logger.Log(constant.ERROR, "", 0.0, 0.0, "GetOrders() error, the error number is ", json.Get("code").MustInt())
+    //     return false
     // }
     orders := []Order{}
     count := len(json.MustArray())
