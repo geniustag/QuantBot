@@ -13,6 +13,7 @@ import (
     "github.com/geniustag/QuantBot/model"
     "io/ioutil"
     "net/http"
+    "crypto/tls"
 )
 
 // OKEX the exchange struct of okex.com
@@ -465,6 +466,12 @@ func (e *Coffee) postAuthJSON(url string, jsonBody string) (json *simplejson.Jso
     return simplejson.NewJson(resp)
 }
 
+var tr = &http.Transport{
+    TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+}
+
+var coffeeClient = &http.Client{Transport: tr}
+
 func (e *Coffee) get3(url string) (ret []byte, err error) {
 // func get(url string) (json *simplejson.Json, err error) {
     req, err := http.NewRequest("GET", e.host + url, strings.NewReader(""))
@@ -472,7 +479,7 @@ func (e *Coffee) get3(url string) (ret []byte, err error) {
         return
     }
     e.setHeaders(req, "GET", url, "")
-    resp, err := client.Do(req)
+    resp, err := coffeeClient.Do(req)
     if resp == nil {
         err = fmt.Errorf("[GET %s] HTTP Error Info: %v", url, err)
     } else if resp.StatusCode == 200 {
@@ -490,7 +497,7 @@ func (e *Coffee) post3(url string, data string) (ret []byte, err error) {
         return
     }
     e.setHeaders(req, "POST", url, data)
-    resp, err := client.Do(req)
+    resp, err := coffeeClient.Do(req)
     if resp == nil {
         err = fmt.Errorf("[POST %s] HTTP Error Info: %v", url, err)
     } else if resp.StatusCode == 200 {
