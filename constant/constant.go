@@ -14,6 +14,7 @@ const (
 	Okex       = "okex"
 	OkexThree  = "okexv3"
 	Xnodes     = "xnodes"
+	Coffee     = "coffee"
 	Huobi      = "huobi"
 	Binance    = "binance"
 	GateIo     = "gateio"
@@ -49,5 +50,5 @@ const (
 // some variables
 var (
 	Consts        = []string{"M", "M5", "M15", "M30", "H", "D", "W"}
-	ExchangeTypes = []string{Zb, Okex, OkexThree, Xnodes, Huobi, Binance, GateIo, Poloniex, OkexFuture, BigOne}
+	ExchangeTypes = []string{Zb, Okex, OkexThree, Xnodes, Coffee, Huobi, Binance, GateIo, Poloniex, OkexFuture, BigOne}
 )

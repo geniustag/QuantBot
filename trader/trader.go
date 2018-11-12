@@ -19,6 +19,7 @@ var (
 		constant.Okex:       api.NewOKEX,
 		constant.OkexThree:  api.NewOKEXThree,
 		constant.Xnodes:     api.NewXnodes,
+		constant.Coffee:     api.NewCoffee,
 		constant.Huobi:      api.NewHuobi,
 		constant.Binance:    api.NewBinance,
 		constant.GateIo:     api.NewGateIo,
