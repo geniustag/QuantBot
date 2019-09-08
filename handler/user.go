@@ -14,9 +14,9 @@ type user struct{}
 func (user) Login(username, password string, ctx rpc.Context) (resp response) {
 	user := model.User{
 		Username: username,
-		Password: password,
+		Email: password,
 	}
-	if user.Username == "" || user.Password == "" {
+	if user.Username == "" || user.Email == "" {
 		resp.Message = "Username and Password can not be empty"
 		return
 	}
