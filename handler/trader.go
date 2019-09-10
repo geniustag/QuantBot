@@ -2,6 +2,7 @@ package handler
 
 import (
 	"fmt"
+ 	"time"
 
 	"github.com/hprose/hprose-golang/rpc"
 	"github.com/geniustag/QuantBot/constant"
@@ -55,6 +56,7 @@ func (runner) Put(req model.Trader, ctx rpc.Context) (resp response) {
 	}
 	defer db.Close()
 	db = db.Begin()
+	req.LastRunAt = time.Now()
 	if req.ID > 0 {
 		if err := self.UpdateTrader(req); err != nil {
 			resp.Message = fmt.Sprint(err)
