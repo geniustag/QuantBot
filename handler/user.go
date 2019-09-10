@@ -98,7 +98,7 @@ func (user) Put(req model.User, password string, ctx rpc.Context) (resp response
 	user := model.User{
 		Username: req.Username,
 		Level:    req.Level,
-		Password: password,
+		Email: password,
 	}
 	if req.ID > 0 {
 		if err := model.DB.First(&user, req.ID).Error; err != nil {
@@ -114,7 +114,7 @@ func (user) Put(req model.User, password string, ctx rpc.Context) (resp response
 			}
 		}
 		if password != "" {
-			user.Password = password
+			user.Email = password
 		}
 		if err := model.DB.Save(&user).Error; err != nil {
 			resp.Message = fmt.Sprint(err)

@@ -44,7 +44,7 @@ func init() {
 	if len(users) == 0 {
 		admin := User{
 			Username: "admin",
-			Password: "admin",
+			Email: "admin",
 			Level:    99,
 		}
 		if err := DB.Create(&admin).Error; err != nil {
