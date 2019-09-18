@@ -2,53 +2,53 @@ package constant
 
 // error constants
 const (
-	Banner                     = "QuantBot"
-	Version                    = "0.0.4"
-	ErrAuthorizationError      = "Authorization Error"
-	ErrInsufficientPermissions = "Insufficient Permissions"
+    Banner                     = "QuantBot"
+    Version                    = "0.0.4"
+    ErrAuthorizationError      = "Authorization Error"
+    ErrInsufficientPermissions = "Insufficient Permissions"
 )
 
 // exchange types
 const (
-	Zb         = "zb"
-	Okex       = "okex"
-	OkexThree  = "okexv3"
-	Xnodes     = "xnodes"
-	Coffee     = "coffee"
-	Huobi      = "huobi"
-	Binance    = "binance"
-	GateIo     = "gateio"
-	Poloniex   = "poloniex"
-	OkexFuture = "okex.future"
-	BigOne     = "big.one"
+    Zb         = "zb"
+    Okex       = "okex"
+    OkexThree  = "okexv3"
+    Xnodes     = "xnodes"
+    Coffee     = "coffee"
+    Huobi      = "huobi"
+    Binance    = "binance"
+    GateIo     = "gateio"
+    Poloniex   = "poloniex"
+    OkexFuture = "okex.future"
+    BigOne     = "big.one"
 )
 
 // log types
 const (
-	ERROR      = "ERROR"
-	INFO       = "INFO"
-	PROFIT     = "PROFIT"
-	BUY        = "BUY"
-	SELL       = "SELL"
-	LONG       = "LONG"
-	SHORT      = "SHORT"
-	LONGCLOSE  = "LONG_CLOSE"
-	SHORTCLOSE = "SHORT_CLOSE"
-	CANCEL     = "CANCEL"
+    ERROR      = "ERROR"
+    INFO       = "INFO"
+    PROFIT     = "PROFIT"
+    BUY        = "BUY"
+    SELL       = "SELL"
+    LONG       = "LONG"
+    SHORT      = "SHORT"
+    LONGCLOSE  = "LONG_CLOSE"
+    SHORTCLOSE = "SHORT_CLOSE"
+    CANCEL     = "CANCEL"
 )
 
 // trade types
 const (
-	TradeTypeBuy        = "BUY"
-	TradeTypeSell       = "SELL"
-	TradeTypeLong       = "LONG"
-	TradeTypeShort      = "SHORT"
-	TradeTypeLongClose  = "LONG_CLOSE"
-	TradeTypeShortClose = "SHORT_CLOSE"
+    TradeTypeBuy        = "BUY"
+    TradeTypeSell       = "SELL"
+    TradeTypeLong       = "LONG"
+    TradeTypeShort      = "SHORT"
+    TradeTypeLongClose  = "LONG_CLOSE"
+    TradeTypeShortClose = "SHORT_CLOSE"
 )
 
 // some variables
 var (
-	Consts        = []string{"M", "M5", "M15", "M30", "H", "D", "W"}
-	ExchangeTypes = []string{Zb, Okex, OkexThree, Xnodes, Coffee, Huobi, Binance, GateIo, Poloniex, OkexFuture, BigOne}
+    Consts        = []string{"M", "M5", "M15", "M30", "H", "D", "W"}
+    ExchangeTypes = []string{Zb, Okex, OkexThree, Xnodes, Coffee, Huobi, Binance, GateIo, Poloniex, OkexFuture, BigOne}
 )

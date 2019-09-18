@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/geniustag/QuantBot/handler"
+    "github.com/geniustag/QuantBot/handler"
 )
 
 func main() {
-	handler.Server()
+    handler.Server()
 }
