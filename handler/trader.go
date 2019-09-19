@@ -6,7 +6,6 @@ import (
     "net"
 
     "github.com/hprose/hprose-golang/rpc"
-    "github.com/geniustag/QuantBot/constant"
     "github.com/geniustag/QuantBot/model"
     "github.com/geniustag/QuantBot/trader"
 )
@@ -15,17 +14,12 @@ type runner struct{}
 
 // List
 func (runner) List(algorithmID int64, ctx rpc.Context) (resp response) {
-    username := ctx.GetString("username")
-    if username == "" {
-        resp.Message = constant.ErrAuthorizationError
-        return
-    }
-    self, err := model.GetUser(username)
+    user, message, err := AuthUser(ctx.GetString("username"))
     if err != nil {
-        resp.Message = fmt.Sprint(err)
+        resp.Message = message
         return
     }
-    traders, err := self.ListTrader(algorithmID)
+    traders, err := user.ListTrader(algorithmID)
     if err != nil {
         resp.Message = fmt.Sprint(err)
         return
@@ -40,14 +34,9 @@ func (runner) List(algorithmID int64, ctx rpc.Context) (resp response) {
 
 // Put
 func (runner) Put(req model.Trader, ctx rpc.Context) (resp response) {
-    username := ctx.GetString("username")
-    if username == "" {
-        resp.Message = constant.ErrAuthorizationError
-        return
-    }
-    self, err := model.GetUser(username)
+    user, message, err := AuthUser(ctx.GetString("username"))
     if err != nil {
-        resp.Message = fmt.Sprint(err)
+        resp.Message = message
         return
     }
     db, err := model.NewOrm()
@@ -60,14 +49,14 @@ func (runner) Put(req model.Trader, ctx rpc.Context) (resp response) {
     req.LastRunAt = time.Now()
     // req.ServerIp = getLocalIp()
     if req.ID > 0 {
-        if err := self.UpdateTrader(req); err != nil {
+        if err := user.UpdateTrader(req); err != nil {
             resp.Message = fmt.Sprint(err)
             return
         }
         resp.Success = true
         return
     }
-    req.UserID = self.ID
+    req.UserID = user.ID
     if err := db.Create(&req).Error; err != nil {
         db.Rollback()
         resp.Message = fmt.Sprint(err)
@@ -95,17 +84,12 @@ func (runner) Put(req model.Trader, ctx rpc.Context) (resp response) {
 
 // Delete
 func (runner) Delete(req model.Trader, ctx rpc.Context) (resp response) {
-    username := ctx.GetString("username")
-    if username == "" {
-        resp.Message = constant.ErrAuthorizationError
-        return
-    }
-    self, err := model.GetUser(username)
+     user, message, err := AuthUser(ctx.GetString("username"))
     if err != nil {
-        resp.Message = fmt.Sprint(err)
+        resp.Message = message
         return
     }
-    if req, err = self.GetTrader(req.ID); err != nil {
+    if req, err = user.GetTrader(req.ID); err != nil {
         resp.Message = fmt.Sprint(err)
         return
     }
@@ -119,21 +103,16 @@ func (runner) Delete(req model.Trader, ctx rpc.Context) (resp response) {
 
 // Switch
 func (runner) Switch(req model.Trader, ctx rpc.Context) (resp response) {
-    username := ctx.GetString("username")
-    if username == "" {
-        resp.Message = constant.ErrAuthorizationError
-        return
-    }
-    self, err := model.GetUser(username)
+     user, message, err := AuthUser(ctx.GetString("username"))
     if err != nil {
+        resp.Message = message
+        return
+    }
+    if req, err = user.GetTrader(req.ID); err != nil {
         resp.Message = fmt.Sprint(err)
         return
     }
-    if req, err = self.GetTrader(req.ID); err != nil {
-        resp.Message = fmt.Sprint(err)
-        return
-    }
-    if err := trader.Switch(self, req.ID); err != nil {
+    if err := trader.Switch(user, req.ID); err != nil {
         resp.Message = fmt.Sprint(err)
         return
     }
@@ -143,17 +122,12 @@ func (runner) Switch(req model.Trader, ctx rpc.Context) (resp response) {
 
 // GetTraderStatus
 func (runner) GetTraderStatus(req model.Trader, ctx rpc.Context) (resp response) {
-    username := ctx.GetString("username")
-    if username == "" {
-        resp.Message = constant.ErrAuthorizationError
-        return
-    }
-    self, err := model.GetUser(username)
+      user, message, err := AuthUser(ctx.GetString("username"))
     if err != nil {
-        resp.Message = fmt.Sprint(err)
+        resp.Message = message
         return
     }
-    if req, err = self.GetTrader(req.ID); err != nil {
+    if req, err = user.GetTrader(req.ID); err != nil {
         resp.Message = fmt.Sprint(err)
         return
     }
