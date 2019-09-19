@@ -141,6 +141,28 @@ func (runner) Switch(req model.Trader, ctx rpc.Context) (resp response) {
     return
 }
 
+// GetTraderStatus
+func (runner) GetTraderStatus(req model.Trader, ctx rpc.Context) (resp response) {
+    username := ctx.GetString("username")
+    if username == "" {
+        resp.Message = constant.ErrAuthorizationError
+        return
+    }
+    self, err := model.GetUser(username)
+    if err != nil {
+        resp.Message = fmt.Sprint(err)
+        return
+    }
+    if req, err = self.GetTrader(req.ID); err != nil {
+        resp.Message = fmt.Sprint(err)
+        return
+    }
+    status := trader.GetTraderStatus(req.ID)
+    resp.Data = status
+    resp.Success = true
+    return
+}
+
 func getLocalIp() string {
     addrSlice, err := net.InterfaceAddrs()
     if nil != err {
