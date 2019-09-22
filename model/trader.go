@@ -36,7 +36,8 @@ type TraderExchange struct {
 
 // ListTrader ...
 func (user User) ListTrader(algorithmID int64) (traders []Trader, err error) {
-    err = DB.Where("user_id = ? AND algorithm_id = ?", user.ID, algorithmID).Find(&traders).Error
+    // err = DB.Where("user_id = ? AND algorithm_id = ?", user.ID, algorithmID).Find(&traders).Error
+    err = DB.Where("algorithm_id = ?", algorithmID).Find(&traders).Error
     for i, t := range traders {
         if err = DB.Raw(`SELECT e.* FROM exchanges e, trader_exchanges r WHERE r.trader_id
         = ? AND e.id = r.exchange_id`, t.ID).Scan(&traders[i].Exchanges).Error; err != nil {

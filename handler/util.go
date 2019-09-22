@@ -14,7 +14,7 @@ func AuthUser(username string) (user model.User, message string, err error) {
     }
     user, err = model.GetUser(username)
     if err != nil {
-        fmt.Sprint(err)
+        message = fmt.Sprint(err)
         return
     }
     return

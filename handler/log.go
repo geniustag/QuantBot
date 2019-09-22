@@ -4,7 +4,6 @@ import (
     "fmt"
 
     "github.com/hprose/hprose-golang/rpc"
-    "github.com/geniustag/QuantBot/constant"
     "github.com/geniustag/QuantBot/model"
 )
 
@@ -22,21 +21,16 @@ type filters struct {
 }
 
 func (logger) List(trader model.Trader, pagination pagination, filters filters, ctx rpc.Context) (resp response) {
-    username := ctx.GetString("username")
-    if username == "" {
-        resp.Message = constant.ErrAuthorizationError
-        return
-    }
-    self, err := model.GetUser(username)
+    user, message, err := AuthUser(ctx.GetString("username"))
     if err != nil {
+        resp.Message = message
+        return
+    }
+    if trader, err = user.GetTrader(trader.ID); err != nil {
         resp.Message = fmt.Sprint(err)
         return
     }
-    if trader, err = self.GetTrader(trader.ID); err != nil {
-        resp.Message = fmt.Sprint(err)
-        return
-    }
-    total, logs, err := self.ListLog(trader.ID, pagination.PageSize, pagination.Current)
+    total, logs, err := user.ListLog(trader.ID, pagination.PageSize, pagination.Current)
     if err != nil {
         resp.Message = fmt.Sprint(err)
         return
@@ -58,7 +52,7 @@ func (logger) List(trader model.Trader, pagination pagination, filters filters, 
 //      "success": false,
 //      "msg":     "",
 //  }
-//  self, err := model.GetUser(jwtmid.Get(c).Claims.(jwt.MapClaims)["sub"])
+//  user, err := model.GetUser(jwtmid.Get(c).Claims.(jwt.MapClaims)["sub"])
 //  if err != nil {
 //      resp["msg"] = fmt.Sprint(err)
 //      c.JSON(iris.StatusOK, resp)
@@ -73,7 +67,7 @@ func (logger) List(trader model.Trader, pagination pagination, filters filters, 
 //  if req.Pagination.PageSize <= 0 || req.Pagination.PageSize > 100 {
 //      req.Pagination.PageSize = 20
 //  }
-//  if req.Trader, err = model.GetTrader(self, req.Trader.ID); err != nil {
+//  if req.Trader, err = model.GetTrader(user, req.Trader.ID); err != nil {
 //      resp["msg"] = fmt.Sprint(err)
 //      c.JSON(iris.StatusOK, resp)
 //      return
@@ -121,14 +115,14 @@ func (logger) List(trader model.Trader, pagination pagination, filters filters, 
 //      "success": false,
 //      "msg":     "",
 //  }
-//  self, err := model.GetUser(jwtmid.Get(c).Claims.(jwt.MapClaims)["sub"])
+//  user, err := model.GetUser(jwtmid.Get(c).Claims.(jwt.MapClaims)["sub"])
 //  if err != nil {
 //      resp["msg"] = fmt.Sprint(err)
 //      c.JSON(iris.StatusOK, resp)
 //      return
 //  }
 //  td := model.Trader{}
-//  if td, err = model.GetTrader(self, c.URLParam("id")); err != nil {
+//  if td, err = model.GetTrader(user, c.URLParam("id")); err != nil {
 //      resp["msg"] = fmt.Sprint(err)
 //      c.JSON(iris.StatusOK, resp)
 //      return
@@ -166,14 +160,14 @@ func (logger) List(trader model.Trader, pagination pagination, filters filters, 
 //      "success": false,
 //      "msg":     "",
 //  }
-//  self, err := model.GetUser(jwtmid.Get(c).Claims.(jwt.MapClaims)["sub"])
+//  user, err := model.GetUser(jwtmid.Get(c).Claims.(jwt.MapClaims)["sub"])
 //  if err != nil {
 //      resp["msg"] = fmt.Sprint(err)
 //      c.JSON(iris.StatusOK, resp)
 //      return
 //  }
 //  td := model.Trader{}
-//  if td, err = model.GetTrader(self, c.URLParam("id")); err != nil {
+//  if td, err = model.GetTrader(user, c.URLParam("id")); err != nil {
 //      resp["msg"] = fmt.Sprint(err)
 //      c.JSON(iris.StatusOK, resp)
 //      return
@@ -214,14 +208,14 @@ func (logger) List(trader model.Trader, pagination pagination, filters filters, 
 //      "success": false,
 //      "msg":     "",
 //  }
-//  self, err := model.GetUser(jwtmid.Get(c).Claims.(jwt.MapClaims)["sub"])
+//  user, err := model.GetUser(jwtmid.Get(c).Claims.(jwt.MapClaims)["sub"])
 //  if err != nil {
 //      resp["msg"] = fmt.Sprint(err)
 //      c.JSON(iris.StatusOK, resp)
 //      return
 //  }
 //  td := model.Trader{}
-//  if td, err = model.GetTrader(self, c.URLParam("id")); err != nil {
+//  if td, err = model.GetTrader(user, c.URLParam("id")); err != nil {
 //      resp["msg"] = fmt.Sprint(err)
 //      c.JSON(iris.StatusOK, resp)
 //      return

@@ -53,17 +53,12 @@ func (user) Get(_ string, ctx rpc.Context) (resp response) {
 
 // List ...
 func (user) List(size, page int64, order string, ctx rpc.Context) (resp response) {
-    username := ctx.GetString("username")
-    if username == "" {
-        resp.Message = constant.ErrAuthorizationError
-        return
-    }
-    self, err := model.GetUser(username)
+    user, message, err := AuthUser(ctx.GetString("username"))
     if err != nil {
-        resp.Message = fmt.Sprint(err)
+        resp.Message = message
         return
     }
-    total, users, err := self.ListUser(size, page, order)
+    total, users, err := user.ListUser(size, page, order)
     if err != nil {
         resp.Message = fmt.Sprint(err)
         return
@@ -90,12 +85,12 @@ func (user) Put(req model.User, password string, ctx rpc.Context) (resp response
         resp.Message = "Request data wrong"
         return
     }
-    self, err := model.GetUser(username)
+    user, err := model.GetUser(username)
     if err != nil {
         resp.Message = fmt.Sprint(err)
         return
     }
-    user := model.User{
+    user = model.User{
         Username: req.Username,
         Level:    req.Level,
         Email: password,
@@ -106,11 +101,11 @@ func (user) Put(req model.User, password string, ctx rpc.Context) (resp response
             return
         }
         user.Level = req.Level
-        if user.Level >= self.Level {
-            if user.ID == self.ID {
-                user.Level = self.Level
+        if user.Level >= user.Level {
+            if user.ID == user.ID {
+                user.Level = user.Level
             } else {
-                user.Level = self.Level - 1
+                user.Level = user.Level - 1
             }
         }
         if password != "" {
@@ -127,8 +122,8 @@ func (user) Put(req model.User, password string, ctx rpc.Context) (resp response
         resp.Message = "Password can't be empty"
         return
     }
-    if user.Level >= self.Level {
-        user.Level = self.Level - 1
+    if user.Level >= user.Level {
+        user.Level = user.Level - 1
     }
     if err := model.DB.Create(&user).Error; err != nil {
         resp.Message = fmt.Sprint(err)
@@ -140,17 +135,12 @@ func (user) Put(req model.User, password string, ctx rpc.Context) (resp response
 
 // Delete ...
 func (user) Delete(ids []int64, ctx rpc.Context) (resp response) {
-    username := ctx.GetString("username")
-    if username == "" {
-        resp.Message = constant.ErrAuthorizationError
-        return
-    }
-    self, err := model.GetUser(username)
+    user, message, err := AuthUser(ctx.GetString("username"))
     if err != nil {
-        resp.Message = fmt.Sprint(err)
+        resp.Message = message
         return
     }
-    if err := model.DB.Where("id in (?) AND level < ?", ids, self.Level).Delete(&model.User{}).Error; err != nil {
+    if err := model.DB.Where("id in (?) AND level < ?", ids, user.Level).Delete(&model.User{}).Error; err != nil {
         resp.Message = fmt.Sprint(err)
     } else {
         resp.Success = true

@@ -3,8 +3,8 @@ package handler
 import (
     "fmt"
 
-    "github.com/hprose/hprose-golang/rpc"
     "github.com/geniustag/QuantBot/constant"
+    "github.com/hprose/hprose-golang/rpc"
     "github.com/geniustag/QuantBot/model"
 )
 
@@ -19,17 +19,12 @@ func (exchange) Types(_ string, ctx rpc.Context) (resp response) {
 
 // List ...
 func (exchange) List(size, page int64, order string, ctx rpc.Context) (resp response) {
-    username := ctx.GetString("username")
-    if username == "" {
-        resp.Message = constant.ErrAuthorizationError
-        return
-    }
-    self, err := model.GetUser(username)
+    user, message, err := AuthUser(ctx.GetString("username"))
     if err != nil {
-        resp.Message = fmt.Sprint(err)
+        resp.Message = message
         return
     }
-    total, exchanges, err := self.ListExchange(size, page, order)
+    total, exchanges, err := user.ListExchange(size, page, order)
     if err != nil {
         resp.Message = fmt.Sprint(err)
         return
@@ -47,14 +42,9 @@ func (exchange) List(size, page int64, order string, ctx rpc.Context) (resp resp
 
 // Put
 func (exchange) Put(req model.Exchange, ctx rpc.Context) (resp response) {
-    username := ctx.GetString("username")
-    if username == "" {
-        resp.Message = constant.ErrAuthorizationError
-        return
-    }
-    self, err := model.GetUser(username)
+    user, message, err := AuthUser(ctx.GetString("username"))
     if err != nil {
-        resp.Message = fmt.Sprint(err)
+        resp.Message = message
         return
     }
     exchange := req
@@ -74,7 +64,7 @@ func (exchange) Put(req model.Exchange, ctx rpc.Context) (resp response) {
         resp.Success = true
         return
     }
-    req.UserID = self.ID
+    req.UserID = user.ID
     if err := model.DB.Create(&req).Error; err != nil {
         resp.Message = fmt.Sprint(err)
         return
@@ -85,18 +75,13 @@ func (exchange) Put(req model.Exchange, ctx rpc.Context) (resp response) {
 
 // Delete
 func (exchange) Delete(ids []int64, ctx rpc.Context) (resp response) {
-    username := ctx.GetString("username")
-    if username == "" {
-        resp.Message = constant.ErrAuthorizationError
-        return
-    }
-    self, err := model.GetUser(username)
+    user, message, err := AuthUser(ctx.GetString("username"))
     if err != nil {
-        resp.Message = fmt.Sprint(err)
+        resp.Message = message
         return
     }
     userIds := []int64{}
-    _, users, err := self.ListUser(-1, 1, "id")
+    _, users, err := user.ListUser(-1, 1, "id")
     if err != nil {
         resp.Message = fmt.Sprint(err)
         return
