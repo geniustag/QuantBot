@@ -2,3 +2,5 @@ data.db
 .git
 QuantBot
 cache*
+*.out
+vendor*
