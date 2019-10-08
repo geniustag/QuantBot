@@ -37,7 +37,7 @@ func init() {
 }
 
 func buildParamsSigned(postForm *url.Values) error {
-    postForm.Set("recvWindow", "6000000")
+    postForm.Set("recvWindow", "5000")
     tonce := strconv.FormatInt(time.Now().UnixNano(), 10)[0:13]
     postForm.Set("timestamp", tonce)
     payload := postForm.Encode()
