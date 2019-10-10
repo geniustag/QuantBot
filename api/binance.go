@@ -159,7 +159,7 @@ func (e *Binance) buy(stockType string, price, amount float64, msgs ...interface
         e.logger.Log(constant.ERROR, "", 0.0, 0.0, "Buy() error, ", result["msg"].(string))
         return false
     }
-    e.logger.Log(constant.BUY, stockType, price, amount, msgs...)
+    e.logger.Log(constant.BUY, stockType, price, amount, result)
     return fmt.Sprint(orderId)
 }
 
@@ -174,7 +174,7 @@ func (e *Binance) sell(stockType string, price, amount float64, msgs ...interfac
         e.logger.Log(constant.ERROR, "", 0.0, 0.0, "Sell() error, ", result["msg"].(string))
         return false
     }
-    e.logger.Log(constant.SELL, stockType, price, amount, msgs...)
+    e.logger.Log(constant.SELL, stockType, price, amount, result)
     return fmt.Sprint(orderId)
 }
 

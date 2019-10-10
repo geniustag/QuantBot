@@ -200,7 +200,11 @@ func (e *Xnodes) postOrder(stockType string, side string, price, amount float64,
         e.logger.Log(constant.ERROR, "", 0.0, 0.0, "Buy() error, the error number is ", json.Get("code").MustInt())
         return false
     }
-    e.logger.Log(constant.BUY, stockType, price, amount, msgs...)
+    tradeType := constant.BUY
+    if side == "sell" {
+        tradeType = constant.SELL        
+    }
+    e.logger.Log(tradeType, stockType, price, amount, json)
     return fmt.Sprint(json.Get("order_id").Interface())
 }
 

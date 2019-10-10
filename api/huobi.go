@@ -198,7 +198,7 @@ func (e *Huobi) buy(stockType string, price, amount float64, msgs ...interface{}
         e.logger.Log(constant.ERROR, "", 0.0, 0.0, "Buy() error, ", result.ErrMsg)
         return false
     }
-    e.logger.Log(constant.BUY, stockType, price, amount, msgs...)
+    e.logger.Log(constant.BUY, stockType, price, amount, result.Data)
     return result.Data
 }
 
@@ -220,7 +220,7 @@ func (e *Huobi) sell(stockType string, price, amount float64, msgs ...interface{
         e.logger.Log(constant.ERROR, "", 0.0, 0.0, "Sell() error, ", result.ErrMsg)
         return false
     }
-    e.logger.Log(constant.SELL, stockType, price, amount, msgs...)
+    e.logger.Log(constant.SELL, stockType, price, amount, result.Data)
     return result.Data
 }
 
