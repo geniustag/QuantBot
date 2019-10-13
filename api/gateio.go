@@ -127,7 +127,7 @@ func (e *GateIo) GetAccount() interface{} {
         e.logger.Log(constant.ERROR, "", 0.0, 0.0, "GetAccount() error, ", err)
         return false
     }
-    return map[string]float64{
+    balances := map[string]float64{
         "USDT":       conver.Float64Must(json.GetPath("available", "USDT").Interface()),
         "FrozenUSDT": conver.Float64Must(json.GetPath("locked", "USDT").Interface()),
         "BTC":        conver.Float64Must(json.GetPath("available", "BTC").Interface()),
@@ -141,6 +141,8 @@ func (e *GateIo) GetAccount() interface{} {
         "QTUM":       conver.Float64Must(json.GetPath("available", "QTUM").Interface()),
         "FrozenQTUM": conver.Float64Must(json.GetPath("locked", "QTUM").Interface()),
     }
+    e.logger.Log(constant.INFO, "GET_BALANCES", 0.0, 0.0, balances)
+    return balances
 }
 
 // Trade place an order
@@ -180,7 +182,7 @@ func (e *GateIo) buy(stockType string, price, amount float64, msgs ...interface{
         e.logger.Log(constant.ERROR, "", 0.0, 0.0, "Buy() error, the error message => ", json.Get("message").MustString())
         return false
     }
-    e.logger.Log(constant.BUY, stockType, price, amount, msgs...)
+    e.logger.Log(constant.BUY, stockType, price, amount, result)
     return fmt.Sprint(json.Get("orderNumber").Interface())
 }
 
@@ -200,7 +202,7 @@ func (e *GateIo) sell(stockType string, price, amount float64, msgs ...interface
         e.logger.Log(constant.ERROR, "", 0.0, 0.0, "Sell() error, the error message => ", json.Get("message").MustString())
         return false
     }
-    e.logger.Log(constant.SELL, stockType, price, amount, msgs...)
+    e.logger.Log(constant.SELL, stockType, price, amount, result)
     return fmt.Sprint(json.Get("orderNumber").Interface())
 }
 

@@ -124,6 +124,7 @@ func (e *Binance) GetAccount() interface{} {
         result[key] = conver.Float64Must(b["free"])
         result["Frozen"+key] = conver.Float64Must(b["locked"])
     }
+    e.logger.Log(constant.INFO, "GET_BALANCES", 0.0, 0.0, result)
     return result
 }
 

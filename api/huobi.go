@@ -156,6 +156,7 @@ func (e *Huobi) GetAccount() interface{} {
     //...
     config.ACCOUNT_ID = strconv.FormatInt(accountID, 10)
     //...
+    e.logger.Log(constant.INFO, "GET_BALANCES", 0.0, 0.0, result)
     return result
 }
 

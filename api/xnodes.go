@@ -144,7 +144,7 @@ func (e *Xnodes) GetAccount() interface{} {
     } else {
         fmt.Println("Empty Accounts")
     }
-
+    e.logger.Log(constant.INFO, "GET_BALANCES", 0.0, 0.0, currencyFrozens)
     return currencyFrozens
 }
 

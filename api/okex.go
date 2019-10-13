@@ -135,7 +135,7 @@ func (e *OKEX) GetAccount() interface{} {
         e.logger.Log(constant.ERROR, "", 0.0, 0.0, "GetAccount() error, ", err)
         return false
     }
-    return map[string]float64{
+    result := map[string]float64{
         "USDT":       conver.Float64Must(json.GetPath("info", "funds", "free", "usdt").Interface()),
         "FrozenUSDT": conver.Float64Must(json.GetPath("info", "funds", "freezed", "usdt").Interface()),
         "BTC":        conver.Float64Must(json.GetPath("info", "funds", "free", "btc").Interface()),
@@ -149,6 +149,9 @@ func (e *OKEX) GetAccount() interface{} {
         "QTUM":       conver.Float64Must(json.GetPath("info", "funds", "free", "qtum").Interface()),
         "FrozenQTUM": conver.Float64Must(json.GetPath("info", "funds", "freezed", "qtum").Interface()),
     }
+    
+    e.logger.Log(constant.INFO, "GET_BALANCES", 0.0, 0.0, result)
+    return result
 }
 
 // Trade place an order
