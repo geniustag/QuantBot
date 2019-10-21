@@ -182,7 +182,7 @@ func (e *GateIo) buy(stockType string, price, amount float64, msgs ...interface{
         e.logger.Log(constant.ERROR, "", 0.0, 0.0, "Buy() error, the error message => ", json.Get("message").MustString())
         return false
     }
-    e.logger.Log(constant.BUY, stockType, price, amount, result)
+    e.logger.Log(constant.BUY, stockType, price, amount, json)
     return fmt.Sprint(json.Get("orderNumber").Interface())
 }
 
@@ -202,7 +202,7 @@ func (e *GateIo) sell(stockType string, price, amount float64, msgs ...interface
         e.logger.Log(constant.ERROR, "", 0.0, 0.0, "Sell() error, the error message => ", json.Get("message").MustString())
         return false
     }
-    e.logger.Log(constant.SELL, stockType, price, amount, result)
+    e.logger.Log(constant.SELL, stockType, price, amount, json)
     return fmt.Sprint(json.Get("orderNumber").Interface())
 }
 

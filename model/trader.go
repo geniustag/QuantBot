@@ -16,6 +16,7 @@ type Trader struct {
     Name        string     `gorm:"type:varchar(200)" json:"name"`
     Environment string     `gorm:"type:text" json:"environment"`
     ServerIp    string     `gorm:"type:varchar(100)" json:"serverIp"`
+    Data        string     `gorm:"type:text()" json:"data"`
     LastRunAt   time.Time  `json:"lastRunAt"`
     CreatedAt   time.Time  `json:"createdAt"`
     UpdatedAt   time.Time  `json:"updatedAt"`
